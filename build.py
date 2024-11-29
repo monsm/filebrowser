@@ -39,6 +39,8 @@ def build_module():
         print("config.json.js file format is incorrect")
         import traceback
         traceback.print_exc()
+        return  # 如果配置文件读取出现异常，直接返回，不再继续后续构建流程
+
     if "module" not in conf:
         print(" module is not in config.json.js")
         return
@@ -50,27 +52,42 @@ def build_module():
     if not os.path.isfile(install_path):
         print("not found {} file，check install.sh file".format(install_path))
         return
+
     print("build...")
 
-    # 打印即将写入版本信息的文件路径
     version_file_path = os.path.join(parent_path, conf["module"], "version")
     print(f"Going to write version file to: {version_file_path}")
-    with open(os.path.join(parent_path, conf["module"], "version"), "w", encoding='utf-8') as f:
-        f.write(conf["version"])
+    try:
+        with open(os.path.join(parent_path, conf["module"], "version"), "w", encoding='utf-8') as f:
+            f.write(conf["version"])
+    except IOError as e:
+        print(f"Error writing version file: {e}")
+        return  # 如果版本文件写入出现错误，直接返回，停止构建
 
-    # 打印打包命令执行前的相关信息
     module_name = conf["module"]
     print(f"Current module name for packing: {module_name}")
     print(f"Parent path for packing: {parent_path}")
     t = Template("cd $parent_path && rm -f $module.tar.gz && tar -zcf $module.tar.gz $module")
     command = t.substitute({"parent_path": parent_path, "module": conf["module"]})
     print(f"Packing command: {command}")
-    os.system(command)
+    try:
+        os.system(command)
+        # 检查打包文件是否真正生成成功
+        tar_file_path = os.path.join(parent_path, conf["module"] + ".tar.gz")
+        if not os.path.isfile(tar_file_path):
+            print(f"Error: {tar_file_path} was not generated successfully.")
+            return  # 如果打包文件没生成，直接返回，停止构建
+    except OSError as e:
+        print(f"Error executing packing command: {e}")
+        return  # 如果执行打包命令出现异常，直接返回，停止构建
 
-    # 打印计算MD5值时的文件路径，以此判断打包文件是否生成在预期位置
-    tar_file_path = os.path.join(parent_path, conf["module"] + ".tar.gz")
     print(f"Going to calculate MD5 for file: {tar_file_path}")
-    conf["md5"] = md5sum(os.path.join(parent_path, conf["module"] + ".tar.gz"))
+    try:
+        conf["md5"] = md5sum(os.path.join(parent_path, conf["module"] + ".tar.gz"))
+    except FileNotFoundError as e:
+        print(f"Error calculating MD5: File not found - {e}")
+        return  # 如果计算MD5时找不到文件，直接返回，停止构建
+
     conf_path = os.path.join(parent_path, "config.json.js")
     with codecs.open(conf_path, "w", encoding='utf-8') as fw:
         json.dump(conf, fw, sort_keys=True, indent=4, ensure_ascii=False)
