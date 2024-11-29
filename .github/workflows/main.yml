@@ -1,50 +1,62 @@
-name: Build and Release Project
+name: Build and Release
+
 on:
   push:
     branches:
-      - master # 可以根据实际情况修改为你想要触发此工作流的分支
+      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3 # 检出仓库代码到运行环境中
-    - name: Set up Python environment
-      uses: actions/setup-python@v4 # 设置 Python 环境，可指定版本等，默认安装较新版本
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        python-version: 3.9 # 根据 build.py 对 Python 版本的要求填写合适的版本号，如 3.8、3.9 等
-    - name: Run build.py
-      run: python build.py # 执行 build.py 文件
-      continue-on-error: false # 如果 build.py 执行出错，直接停止工作流，便于排查问题
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run build script
+      run: python build.py
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifact
+        path: ./*.tar.gz
 
   release:
-    needs: build # 依赖 build 任务成功完成后再执行此任务
+    needs: build
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3 # 再次检出代码，确保能获取到生成的文件，因为不同步骤可能在不同的工作目录下
-    - name: Check generated file existence
-      run: |
-        if [! -f /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz ]; then
-          echo "filebrowser.tar.gz file not found. Please check the build process."
-          exit 1
-        fi
-    - name: Create release
+    - name: Download artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: build-artifact
+
+    - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 使用 GitHub 自动生成的令牌来进行认证，赋予创建 Release 的权限
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.run_id }} # 可以根据需要自定义标签名，这里使用工作流运行的唯一 ID 作为标签名，方便区分每次发布
-        release_name: Release-${{ github.run_id }} # 发布的名称，同样基于工作流运行 ID，你可以按需修改格式
-        draft: false # 是否为草稿，设置为 false 表示直接发布
-        prerelease: false # 是否为预发布版本，设置为 false 表示正式发布
-    - name: Upload build artifact to release
+        tag_name: v1.0.0
+        release_name: Release v1.0.0
+        draft: false
+        prerelease: false
+
+    - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }} # 获取创建 Release 步骤输出的上传 URL
-        asset_path: /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz # 根据 build.py 中生成文件的实际路径填写
-        asset_name: filebrowser.tar.gz # 上传资产的名称，也就是最终在 Release 中显示的文件名
-        asset_content_type: application/x-gzip # 文件的内容类型，根据实际文件类型填写，tar.gz 文件一般是这个类型
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./*.tar.gz
+        asset_name: module.tar.gz
+        asset_content_type: application/gzip
