@@ -35,6 +35,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
     - name: Download artifact
       uses: actions/download-artifact@v4
       with:
@@ -54,12 +57,15 @@ jobs:
         draft: false
         prerelease: false
 
+    - name: Save release URL
+      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
+
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ env.UPLOAD_URL }}
         asset_path: filebrowser.tar.gz
         asset_name: filebrowser.tar.gz
         asset_content_type: application/gzip
