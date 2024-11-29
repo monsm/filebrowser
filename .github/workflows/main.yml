@@ -21,6 +21,9 @@ jobs:
     - name: Run build script
       run: python build.py
 
+    - name: List files for debug
+      run: ls -al
+
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
