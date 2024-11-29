@@ -188,7 +188,6 @@ install_now() {
 install() {
   get_model
   get_fw_type
-  platform_test
   install_now
 }
 
