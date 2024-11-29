@@ -46,11 +46,17 @@ jobs:
       with:
         name: build-artifact
 
-    - name: List downloaded files for debug
+    - name: List files after download for debug
       run: |
-        echo "Listing files after download:"
+        echo "Listing files after downloading artifact:"
         ls -al
         echo "Finished listing files"
+        
+    - name: Move downloaded artifact
+      run: mv build-artifact/filebrowser.tar.gz .
+
+    - name: List files in root directory
+      run: ls -al
 
     - name: Create Release
       id: create_release
