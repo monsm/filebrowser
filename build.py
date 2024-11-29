@@ -60,7 +60,10 @@ def build_module():
     t = Template("cd $parent_path && rm -f $module.tar.gz && tar -zcf $module.tar.gz $module")
     os.system(t.substitute({"parent_path": parent_path, "module": conf["module"]}))
 
-    conf["md5"] = md5sum(os.path.join(parent_path, conf["module"] + ".tar.gz"))
+    tar_gz_path = os.path.join(parent_path, conf["module"] + ".tar.gz")
+    print(f"Generated file: {tar_gz_path}")
+
+    conf["md5"] = md5sum(tar_gz_path)
     conf_path = os.path.join(parent_path, "config.json.js")
     with codecs.open(conf_path, "w", "utf-8") as fw:
         json.dump(conf, fw, sort_keys=True, indent=4, ensure_ascii=False)
