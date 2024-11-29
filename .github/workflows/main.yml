@@ -21,41 +21,27 @@ jobs:
     - name: Run build script
       run: python build.py
 
-    - name: List files after build
+    - name: List files for debug
       run: ls -al /home/runner/work/filebrowser/filebrowser
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: build-artifact
         path: /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz
-
-    - name: Verify file exists after upload
-      run: ls -al /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz
 
   release:
     needs: build
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
     - name: Download artifact
       uses: actions/download-artifact@v3
       with:
         name: build-artifact
 
-    - name: List files after download for debug
-      run: |
-        echo "Listing files after downloading artifact:"
-        ls -al
-        echo "Finished listing files"
-
-    - name: Move downloaded artifact
-      run: |
-        mv build-artifact/filebrowser.tar.gz ./filebrowser.tar.gz
-        ls -al
+    - name: List downloaded files for debug
+      run: ls -al
 
     - name: Create Release
       id: create_release
