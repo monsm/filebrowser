@@ -21,7 +21,7 @@ jobs:
     - name: Run build script
       run: python build.py
 
-    - name: List files for debug
+    - name: List files after build
       run: ls -al /home/runner/work/filebrowser/filebrowser
 
     - name: Upload artifact
@@ -37,6 +37,9 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - name: List files before download
+      run: ls -al
 
     - name: Download artifact
       uses: actions/download-artifact@v3
