@@ -35,17 +35,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: List artifacts for debug
-      run: |
-        echo "Available artifacts:"
-        ls -al /home/runner/work/filebrowser/filebrowser
-        echo "Finished listing artifacts"
-
     - name: Checkout repository
       uses: actions/checkout@v2
 
     - name: List files before download
-      run: ls -al
+      run: ls -al /home/runner/work/filebrowser/filebrowser
 
     - name: Download artifact
       uses: actions/download-artifact@v3
