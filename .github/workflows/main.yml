@@ -47,7 +47,10 @@ jobs:
         name: build-artifact
 
     - name: List downloaded files for debug
-      run: ls -al
+      run: |
+        echo "Listing files after download:"
+        ls -al
+        echo "Finished listing files"
 
     - name: Create Release
       id: create_release
