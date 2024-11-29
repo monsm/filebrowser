@@ -32,22 +32,15 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: build-artifact
+        path: .  # 下载到当前工作目录
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1.1.0
+      uses: softprops/action-gh-release@v1  # 使用新版本的创建发布动作
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v1.0.0-${{ github.run_number }}
-        release_name: Release v1.0.0-${{ github.run_number }}
+        name: Release v1.0.0-${{ github.run_number }}
         draft: false
         prerelease: false
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: filebrowser.tar.gz
-        asset_name: filebrowser.tar.gz
-        asset_content_type: application/gzip
+        files: filebrowser.tar.gz  # 直接指定要上传的文件
