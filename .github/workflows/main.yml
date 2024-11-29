@@ -12,7 +12,5 @@ jobs:
       uses: actions/setup-python@v4 # 设置 Python 环境，可指定版本等，默认安装较新版本
       with:
         python-version: 3.9 # 根据 build.py 对 Python 版本的要求填写合适的版本号，如 3.8、3.9 等
-    - name: Install dependencies
-      run: pip install -r requirements.txt # 如果 build.py 依赖其他 Python 包，先安装依赖，假设依赖在 requirements.txt 文件中记录，若无则可省略此步骤
     - name: Run build.py
       run: python build.py # 执行 build.py 文件
