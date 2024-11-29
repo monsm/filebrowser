@@ -20,7 +20,10 @@ jobs:
 
     - name: Run build script
       run: python build.py
-      
+
+    - name: List files for debug
+      run: ls -al /home/runner/work/filebrowser/filebrowser
+
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
@@ -40,26 +43,12 @@ jobs:
       with:
         name: build-artifact
 
+    - name: List downloaded files for debug
+      run: ls -al
+
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
+      uses: softprops/action-gh-release@v1
+      with:
+        files: filebrowser.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v1.0.0-${{ github.run_number }}
-        release_name: Release v1.0.0-${{ github.run_number }}
-        draft: false
-        prerelease: false
-
-    - name: Save release URL
-      run: echo "UPLOAD_URL=${{ steps.create_release.outputs.upload_url }}" >> $GITHUB_ENV
-
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ env.UPLOAD_URL }}
-        asset_path: filebrowser.tar.gz
-        asset_name: filebrowser.tar.gz
-        asset_content_type: application/gzip
