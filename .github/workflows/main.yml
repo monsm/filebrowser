@@ -30,6 +30,9 @@ jobs:
         name: build-artifact
         path: /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz
 
+    - name: Verify file exists after upload
+      run: ls -al /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz
+
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -51,7 +54,7 @@ jobs:
         echo "Listing files after downloading artifact:"
         ls -al
         echo "Finished listing files"
-        
+
     - name: Move downloaded artifact
       run: mv build-artifact/filebrowser.tar.gz .
 
