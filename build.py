@@ -52,11 +52,24 @@ def build_module():
         return
     print("build...")
 
+    # 打印即将写入版本信息的文件路径
+    version_file_path = os.path.join(parent_path, conf["module"], "version")
+    print(f"Going to write version file to: {version_file_path}")
     with open(os.path.join(parent_path, conf["module"], "version"), "w", encoding='utf-8') as f:
         f.write(conf["version"])
 
+    # 打印打包命令执行前的相关信息
+    module_name = conf["module"]
+    print(f"Current module name for packing: {module_name}")
+    print(f"Parent path for packing: {parent_path}")
     t = Template("cd $parent_path && rm -f $module.tar.gz && tar -zcf $module.tar.gz $module")
-    os.system(t.substitute({"parent_path": parent_path, "module": conf["module"]}))
+    command = t.substitute({"parent_path": parent_path, "module": conf["module"]})
+    print(f"Packing command: {command}")
+    os.system(command)
+
+    # 打印计算MD5值时的文件路径，以此判断打包文件是否生成在预期位置
+    tar_file_path = os.path.join(parent_path, conf["module"] + ".tar.gz")
+    print(f"Going to calculate MD5 for file: {tar_file_path}")
     conf["md5"] = md5sum(os.path.join(parent_path, conf["module"] + ".tar.gz"))
     conf_path = os.path.join(parent_path, "config.json.js")
     with codecs.open(conf_path, "w", encoding='utf-8') as fw:
