@@ -30,9 +30,6 @@ jobs:
         name: build-artifact
         path: /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz
 
-    - name: Verify file exists after upload
-      run: ls -al /home/runner/work/filebrowser/filebrowser/filebrowser.tar.gz
-
   release:
     needs: build
     runs-on: ubuntu-latest
@@ -50,12 +47,9 @@ jobs:
       run: |
         echo "Listing files after downloading artifact:"
         ls -al
+        echo "Contents of build-artifact directory:"
+        ls -al build-artifact
         echo "Finished listing files"
-
-    - name: Move downloaded artifact
-      run: |
-        mv build-artifact/filebrowser.tar.gz ./filebrowser.tar.gz
-        ls -al
 
     - name: Create Release
       id: create_release
@@ -74,6 +68,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: filebrowser.tar.gz
+        asset_path: build-artifact/filebrowser.tar.gz
         asset_name: filebrowser.tar.gz
         asset_content_type: application/gzip
